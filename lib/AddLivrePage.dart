@@ -8,33 +8,41 @@ class AddLivrePage extends StatefulWidget {
 
 class _AddLivrePageState extends State<AddLivrePage> {
   final _formKey = GlobalKey<FormState>();
-  String? _titre;
-  String? _isbn;
-  String? _dateSortie;
-  String? _photo;
-  int? _ecrivainId;
+  String _titre = '';
+  String _isbn = '';
+  String _dateSortie = '';
+  String _photo = ''; // Placeholder for photo, can use image picker
+  int? _selectedEcrivainId; // Store selected écrivain ID
+  List<Map<String, dynamic>> _ecrivains = []; // Store list of écrivains
 
+  // Fetch the écrivains from the database
+  Future<void> _loadEcrivains() async {
+    final data = await DBHelper().fetchAll('ecrivains'); // Fetch all écrivains
+    setState(() {
+      _ecrivains = data;
+    });
+  }
+
+  // Add Livre to the database
   Future<void> _addLivre() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-
-      // Add the new book to the database
-      await DBHelper().insertBook({
+      // Insert book data into the database
+      await DBHelper().insert('livres', {
         'titre': _titre,
         'isbn': _isbn,
         'dateSortie': _dateSortie,
         'photo': _photo,
-        'ecrivainId': _ecrivainId,
+        'ecrivainId': _selectedEcrivainId,
       });
-
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Livre ajouté avec succès!')),
-      );
-
-      // Navigate back to the livre list page
-      Navigator.pop(context);
+      Navigator.pop(context); // Close the page after adding the book
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEcrivains(); // Load écrivains when the page is initialized
   }
 
   @override
@@ -49,65 +57,74 @@ class _AddLivrePageState extends State<AddLivrePage> {
           key: _formKey,
           child: Column(
             children: [
+              // Title input field
               TextFormField(
                 decoration: InputDecoration(labelText: 'Titre'),
+                onSaved: (value) {
+                  _titre = value!;
+                },
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Veuillez entrer un titre.';
+                  if (value!.isEmpty) {
+                    return 'Veuillez entrer un titre';
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  _titre = value;
-                },
               ),
+              // ISBN input field
               TextFormField(
                 decoration: InputDecoration(labelText: 'ISBN'),
+                onSaved: (value) {
+                  _isbn = value!;
+                },
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Veuillez entrer un ISBN.';
+                  if (value!.isEmpty) {
+                    return 'Veuillez entrer un ISBN';
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  _isbn = value;
-                },
               ),
+              // Date of Release input field
               TextFormField(
-                decoration: InputDecoration(labelText: 'Date de sortie'),
+                decoration: InputDecoration(labelText: 'Date de Sortie'),
+                onSaved: (value) {
+                  _dateSortie = value!;
+                },
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Veuillez entrer une date de sortie.';
+                  if (value!.isEmpty) {
+                    return 'Veuillez entrer une date de sortie';
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  _dateSortie = value;
-                },
               ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Photo URL'),
-                onSaved: (value) {
-                  _photo = value;
+              // Dropdown to select the Écrivain
+              DropdownButtonFormField<int>(
+                value: _selectedEcrivainId,
+                hint: Text('Sélectionner un Écrivain'),
+                onChanged: (int? newValue) {
+                  setState(() {
+                    _selectedEcrivainId = newValue;
+                  });
                 },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'ID de l\'Écrivain'),
-                keyboardType: TextInputType.number,
+                onSaved: (value) {
+                  _selectedEcrivainId = value!;
+                },
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Veuillez entrer l\'ID de l\'écrivain.';
+                  if (value == null) {
+                    return 'Veuillez sélectionner un écrivain';
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  _ecrivainId = int.parse(value!);
-                },
+                items: _ecrivains.map((ecrivain) {
+                  return DropdownMenuItem<int>(
+                    value: ecrivain['id'],
+                    child: Text('${ecrivain['nom']} ${ecrivain['prenom']}'),
+                  );
+                }).toList(),
               ),
-              SizedBox(height: 20),
+              // Add Book Button
               ElevatedButton(
                 onPressed: _addLivre,
-                child: Text('Ajouter'),
+                child: Text('Ajouter le Livre'),
               ),
             ],
           ),
