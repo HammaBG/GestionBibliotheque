@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart'; // Import image picker
 import 'db_helper.dart';
 
 class AddLivrePage extends StatefulWidget {
@@ -11,9 +13,10 @@ class _AddLivrePageState extends State<AddLivrePage> {
   String _titre = '';
   String _isbn = '';
   String _dateSortie = '';
-  String _photo = ''; // Placeholder for photo, can use image picker
+  String _photo = ''; // Path to the selected photo
   int? _selectedEcrivainId; // Store selected écrivain ID
   List<Map<String, dynamic>> _ecrivains = []; // Store list of écrivains
+  final ImagePicker _picker = ImagePicker(); // Image picker instance
 
   // Fetch the écrivains from the database
   Future<void> _loadEcrivains() async {
@@ -27,7 +30,6 @@ class _AddLivrePageState extends State<AddLivrePage> {
   Future<void> _addLivre() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      // Insert book data into the database
       await DBHelper().insert('livres', {
         'titre': _titre,
         'isbn': _isbn,
@@ -36,6 +38,16 @@ class _AddLivrePageState extends State<AddLivrePage> {
         'ecrivainId': _selectedEcrivainId,
       });
       Navigator.pop(context); // Close the page after adding the book
+    }
+  }
+
+  // Pick an image from the gallery or take a new photo
+  Future<void> _pickImage() async {
+    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _photo = pickedFile.path; // Save the file path of the selected image
+      });
     }
   }
 
@@ -121,6 +133,19 @@ class _AddLivrePageState extends State<AddLivrePage> {
                   );
                 }).toList(),
               ),
+              // Button to pick an image
+              ElevatedButton(
+                onPressed: _pickImage,
+                child: Text('Choisir une image'),
+              ),
+              // Display selected image preview
+              if (_photo.isNotEmpty)
+                Image.file(
+                  File(_photo),
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
+                ),
               // Add Book Button
               ElevatedButton(
                 onPressed: _addLivre,

@@ -1,3 +1,4 @@
+import 'dart:io'; // Import for Image.file
 import 'package:flutter/material.dart';
 import 'AddLivrePage.dart';
 import 'UpdateLivrePage.dart';
@@ -49,6 +50,14 @@ class _BookListPageState extends State<BookListPage> {
           return Card(
             margin: const EdgeInsets.all(8.0),
             child: ListTile(
+              leading: livre['photo'] != null && livre['photo'].isNotEmpty
+                  ? Image.file(
+                File(livre['photo']),
+                width: 50, // Adjust width and height as needed
+                height: 50,
+                fit: BoxFit.cover,
+              )
+                  : Icon(Icons.book, size: 50), // Default icon if no image
               title: Text(livre['titre']),
               subtitle: Text('ISBN: ${livre['isbn']}'),
               onTap: () {
