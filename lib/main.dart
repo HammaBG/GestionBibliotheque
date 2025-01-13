@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'BookListPage.dart';
+import 'WriterListPage.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -74,34 +77,6 @@ class HomePage extends StatelessWidget {
       ),
       body: Center(
         child: Text('Bienvenue dans l\'application de gestion de bibliothèque'),
-      ),
-    );
-  }
-}
-
-class BookListPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Liste des Livres'),
-      ),
-      body: Center(
-        child: Text('Ici, la liste des livres sera affichée.'),
-      ),
-    );
-  }
-}
-
-class WriterListPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Liste des Écrivains'),
-      ),
-      body: Center(
-        child: Text('Ici, la liste des écrivains sera affichée.'),
       ),
     );
   }
