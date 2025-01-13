@@ -13,9 +13,9 @@ class _BookListPageState extends State<BookListPage> {
   List<Map<String, dynamic>> _livres = [];
   bool _isLoading = true;
 
-  // Fetch books from the database
+  // Fetch books and their associated écrivain from the database
   Future<void> _refreshLivres() async {
-    final data = await DBHelper().fetchAllBooks();
+    final data = await DBHelper().fetchAllBooksWithEcrivain();
     setState(() {
       _livres = data;
       _isLoading = false;
@@ -59,7 +59,7 @@ class _BookListPageState extends State<BookListPage> {
               )
                   : Icon(Icons.book, size: 50), // Default icon if no image
               title: Text(livre['titre']),
-              subtitle: Text('ISBN: ${livre['isbn']}'),
+              subtitle: Text('ISBN: ${livre['isbn']}\nAuteur: ${livre['ecrivain_nom']} ${livre['ecrivain_prenom']}'),
               onTap: () {
                 // Navigate to UpdateLivrePage when an item is clicked
                 Navigator.push(

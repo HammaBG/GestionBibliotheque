@@ -113,5 +113,14 @@ class DBHelper {
     final db = await database;
     return await db.delete('livres', where: 'id = ?', whereArgs: [id]);
   }
+  Future<List<Map<String, dynamic>>> fetchAllBooksWithEcrivain() async {
+    final db = await database;
+    return await db.rawQuery('''
+    SELECT livres.*, ecrivains.nom AS ecrivain_nom, ecrivains.prenom AS ecrivain_prenom
+    FROM livres
+    INNER JOIN ecrivains ON livres.ecrivainId = ecrivains.id
+  ''');
+  }
+
 
 }
