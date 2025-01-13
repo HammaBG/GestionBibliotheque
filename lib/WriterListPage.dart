@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart'; // Import url_launcher
 import 'AddWriterPage.dart';
 import 'UpdateWriterPage.dart';
 import 'db_helper.dart';
@@ -25,6 +26,16 @@ class _WriterListPageState extends State<WriterListPage> {
   void initState() {
     super.initState();
     _refreshWriters(); // Load writers when the page is initialized
+  }
+
+  // Function to launch the dialer with the writer's phone number
+  Future<void> _callWriter(String phoneNumber) async {
+    final url = 'tel:$phoneNumber';
+    if (await canLaunch(url)) {
+      await launch(url); // Launch the phone dialer
+    } else {
+      throw 'Could not launch $url'; // Handle the error if the dialer cannot be launched
+    }
   }
 
   @override
@@ -63,16 +74,27 @@ class _WriterListPageState extends State<WriterListPage> {
                   _refreshWriters();
                 });
               },
-              trailing: IconButton(
-                icon: Icon(Icons.delete, color: Colors.red),
-                onPressed: () async {
-                  // Delete the writer and refresh the list
-                  await DBHelper().delete('ecrivains', 'id = ?', [writer['id']]);
-                  _refreshWriters();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Écrivain supprimé avec succès!')),
-                  );
-                },
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.phone, color: Colors.green),
+                    onPressed: () {
+                      _callWriter(writer['tel']); // Call the writer when pressed
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onPressed: () async {
+                      // Delete the writer and refresh the list
+                      await DBHelper().delete('ecrivains', 'id = ?', [writer['id']]);
+                      _refreshWriters();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Écrivain supprimé avec succès!')),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           );

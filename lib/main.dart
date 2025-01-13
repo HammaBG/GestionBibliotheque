@@ -106,13 +106,6 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Paramètres'),
-              onTap: () {
-                // Ajouter une page pour les paramètres si nécessaire
-              },
-            ),
           ],
         ),
       ),
