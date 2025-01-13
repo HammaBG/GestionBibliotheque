@@ -96,4 +96,22 @@ class DBHelper {
     final db = await database;
     return await db.query(table, where: whereClause, whereArgs: whereArgs);
   }
+
+  Future<List<Map<String, dynamic>>> fetchAllBooks() async {
+    final db = await database;
+    return await db.query('livres');
+  }
+  Future<void> insertBook(Map<String, dynamic> book) async {
+    final db = await database;
+    await db.insert('livres', book);
+  }
+  Future<int> updateBook(Map<String, dynamic> book, int id) async {
+    final db = await database;
+    return await db.update('livres', book, where: 'id = ?', whereArgs: [id]);
+  }
+  Future<int> deleteBook(int id) async {
+    final db = await database;
+    return await db.delete('livres', where: 'id = ?', whereArgs: [id]);
+  }
+
 }
